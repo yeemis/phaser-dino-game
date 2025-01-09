@@ -6,6 +6,7 @@ Refer to Notion for more details (For one centralised database)
 
 ## How to push into GitHub
 Save file first
+
 In the Terminal, 
 1. Stage the whole file using 'git add .' 
 2. Stage a certain file using 'git add file-name' 
