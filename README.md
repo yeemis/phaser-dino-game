@@ -20,5 +20,5 @@ In the Terminal,
 1. 'git status' will check if your code is up to date with the version on GitHub
 2. 'git log --oneline' will show your commit history
 
-
+It is also adviced to stop your Codespace when not using and delete after finish with use to prevent the hitting of quota
 
