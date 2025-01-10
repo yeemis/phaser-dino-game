@@ -15,13 +15,14 @@ Alternatively, if you would like to progress from this page,
 When you have a codespace, you will be using up your free quotas for your Codespaces core hours (usage hours) and GB-month (storage).   
 
 To prevent the wastage of core hours, make sure to stop your codespace from running when not in use. (e.g. before going for a meal)  
-To prevent the wastage of core hours, delete your codespace when not in use (e.g. at the end of the course)
+To prevent the wastage of storage, delete your codespace when not in use (e.g. at the end of the course)
 
 To stop your codespace from running:
-1. Click on 'Codespaces' in your left toolbar
-2. Click on the 3 dots on the right of your codespace
-3. Click on 'Stop Codespace'  
-Note: If you do not see a green 'Active' symbol and/or the 'Stop Codespace' button is missing, your codespace has stopped.
+1. Click on the search bar at the top of your codespace (NOT the Google search bar!) OR type Ctrl + P
+2. Key in '>Codespaces: Stop Current Codespace'
+3. You might need to choose the Codespace you would like to stop
+4. Click on it, and wait for a few seconds until you see 'Codespace is stopped'
+
 
 To delete your codespace (Only delete at the end of the course):
 1. Click on 'Codespaces' in your left toolbar
