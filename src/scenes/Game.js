@@ -19,9 +19,19 @@ export class Game extends Scene {
         this.load.spritesheet("dino","assets/dino-run.png",{frameWidth:88,frameHeight:94})
         this.load.image("ground","assets/ground.png");
         this.load.image("cloud","assets/cloud.png");
+        for(let i = 0; i < 6; i++) {
+            const cactusNum = i +1;
+            this.load.image('obstacle-${cactusNum}',`assets/cactuses_${cactusNum}.png`);
+            console.log('loaded')
+        }
     }
 
     create() {
+        for (let i = 0; i<100; i++) {
+            const cactusnum = i+1;
+            console.log ('cactus${cactusnum}');
+        }
+        
         this.gameSpeed = 5;
         this.player = this.physics.add.sprite(200,200,"dino")
             .setOrigin(0,1)
@@ -39,14 +49,16 @@ export class Game extends Scene {
                                                 this.add.image(200,100,"cloud"),
                                                 this.add.image(300,130,"cloud"),
                                                 this.add.image(450,80,"cloud")])
-        for (let i = 0;1<100; i++) {
-            const cactusnum = i+1;
-            console.log ('cactus${cactusnum}');
-        }
+        this.obstacles = this.physics.add.group({
+            allowGravity: false,
+        })
+    
     }
 
     update() {
         this.ground.tilePositionX += this.gameSpeed;
+        this.obstacleNum = Math.floor(Math.random()*6 )+1;
+        this.obstacles.create(500,220,`obstacle-${this.obstacleNum}`).setOrigin(0);
     }
 
 }
