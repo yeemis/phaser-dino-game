@@ -39,6 +39,10 @@ export class Game extends Scene {
                                                 this.add.image(200,100,"cloud"),
                                                 this.add.image(300,130,"cloud"),
                                                 this.add.image(450,80,"cloud")])
+        for (let i = 0;1<100; i++) {
+            const cactusnum = i+1;
+            console.log ('cactus${cactusnum}');
+        }
     }
 
     update() {
