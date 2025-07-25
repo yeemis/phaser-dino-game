@@ -19,20 +19,17 @@ export class Game extends Scene {
         this.load.spritesheet("dino","assets/dino-run.png",{frameWidth:88,frameHeight:94})
         this.load.image("ground","assets/ground.png");
         this.load.image("cloud","assets/cloud.png");
-        for(let i = 0; i < 6; i++) {
-            const cactusNum = i +1;
-            this.load.image('obstacle-${cactusNum}',`assets/cactuses_${cactusNum}.png`);
-            console.log('loaded')
+        for(let i = 0; i < 100; i++) {
+            const cactusNum = i + 1;
+            this.load.image(`obstacle-${cactusNum}`,`assets/cactuses_${cactusNum}.png`);
+            console.log(`loaded`)
         }
     }
 
     create() {
-        for (let i = 0; i<100; i++) {
-            const cactusnum = i+1;
-            console.log ('cactus${cactusnum}');
-        }
         
         this.gameSpeed = 5;
+        this.timer = 0;
         this.player = this.physics.add.sprite(200,200,"dino")
             .setOrigin(0,1)
             .setGravityY(5000)
@@ -52,13 +49,30 @@ export class Game extends Scene {
         this.obstacles = this.physics.add.group({
             allowGravity: false,
         })
+        this.cursors = this.input.keyboard.createCursorKeys();
+
     
     }
 
-    update() {
+    update(time, delta) {
         this.ground.tilePositionX += this.gameSpeed;
-        this.obstacleNum = Math.floor(Math.random()*6 )+1;
-        this.obstacles.create(500,220,`obstacle-${this.obstacleNum}`).setOrigin(0);
+        this.timer += delta;
+        console.log(this.timer);
+        if (this.timer > 1000) {
+            this.obstacleNum = Math.floor(Math.random() *6 )+1;
+            this.obstacles.create(750, 220, `obstacle-${this.obstacleNum}`).setOrigin(0);
+            this.timer -= 1000;
+        }
+        Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed);
+        this.obstacles.getChildren().forEach(obstacle =>{
+            if (obstacle.getBounds().right < 0) {
+               this.obstacles.remove(obstacle);
+                obstacle.destroy();
+            }
+        })
+        const {space, up} = this.cursors;
+        if (Phaser.Input.Keyboard.JustDown(space) || Phaser.Input.Keyboard.JustDown(up)&& this.player.body.onFloor()) {
+            this.player.setVelocityY(-1600);
+        }
     }
-
 }
