@@ -26,6 +26,9 @@ export class Game extends Scene {
         }
         this.load.image("game-over","assets/game-over.png");
         this.load.image("restart","assets/restart.png");
+        this.load.image("dino-hurt","assets/dino-hurt.png");
+        this.load.audio("jump","assests/jump.m4a")
+        this.load.audio("hit","assests/hit.m4a");
     }
 
     create() {
@@ -96,7 +99,7 @@ export class Game extends Scene {
         console.log(this.timer);
         if (this.timer > 1000) {
             this.obstacleNum = Math.floor(Math.random() *6 )+1;
-            this.obstacles.create(750, 220, `obstacle-${this.obstacleNum}`).setOrigin(0);
+            this.obstacles.create(900, 250, `obstacle-${this.obstacleNum}`).setOrigin(0);
             this.timer -= 1000;
         }
         Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed);
@@ -109,6 +112,7 @@ export class Game extends Scene {
         const {space, up} = this.cursors;
         if (Phaser.Input.Keyboard.JustDown(space) || Phaser.Input.Keyboard.JustDown(up)&& this.player.body.onFloor()) {
             this.player.setVelocityY(-1600);
+            this.sound.play("jump");
         }
         this.restartText.on('pointerdown', () => {
             this.physics.resume();
@@ -121,6 +125,7 @@ export class Game extends Scene {
             const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
             this.scoreText.setText(formattedScore);
             this.isGameRunning = true;
+            this.anims.resumeAll();
         })
         
         this.frameCounter++;
@@ -131,6 +136,25 @@ export class Game extends Scene {
             this.scoreText.setText(formattedScore) 
             this.frameCounter -= 100;
         }
+        this.anims.create({
+            key: 'dino-run',
+            frames:this.anims.generateFrameNumbers('dino', {start:2, end:3}),
+            frameRate: 10,
+            repeat: -1
+
+        })
+        //if jumping, do not display dino run animation and display texture
+        if (this.player.body.deltaAbsY()>4) {
+            //temporarily stop runninng animation
+            this.player.anims.stop();
+            //set texture to first frame
+            this.player.setTexture('dino', 0);
+        }else{
+            //otherwise, play running animation
+            this.player.anims.play('dino-run', true);
+        }
+
+        
 
     }
     gameOver() {
@@ -144,6 +168,9 @@ export class Game extends Scene {
         this.timer = 0;
         this.isGameRunning = false;
         this.gameOverContainer.setAlpha(1);
+        this.anims.pauseAll();
+        this.player.setTexture('dino-hurt');
+        this.sound.play('hit');
     }
     
 }
