@@ -29,6 +29,9 @@ export class Game extends Scene {
     }
 
     create() {
+        this.score = 0;
+        this.highscore = 0;
+        this.frameCounter = 0;
         this.isGameRunning = true;
 
         this.gameSpeed = 5;
@@ -48,7 +51,9 @@ export class Game extends Scene {
         this.clouds = this.clouds.addMultiple([
                                                 this.add.image(200,100,"cloud"),
                                                 this.add.image(300,130,"cloud"),
-                                                this.add.image(450,80,"cloud")])
+                                                this.add.image(450,80,"cloud"),
+                                                this.add.image(600,120,"cloud"),
+                                                this.add.image(800,90,"cloud"),])
         this.obstacles = this.physics.add.group({
             allowGravity: false,
         })
@@ -60,6 +65,25 @@ export class Game extends Scene {
                 .container(1024/2,(300/2) - 50)
                 .add([this.gameOverText, this.restartText])
                 .setAlpha(0); //transparency
+        this.scoreText = this.add.text(1000,0,"00000",{
+            fontSize: 30,
+            fontFamily: "Arial",
+            color : "#535353" ,
+            resolution: 5
+        }).setOrigin(1,0);
+        this.HighscoreText = this.add.text(900,0,"High score: 00000",{
+            fontSize: 30,
+            fontFamily: "Arial",
+            color : "#535353" ,
+            resolution: 5
+        }).setOrigin(1,0).setAlpha(1);
+        this.congratsText = this.add.text(0,0, "Congratulations!, a new high score!!!", {
+            fontSize: 30,
+            fontFamily: "Arial",
+            color : "#ee25fcff" ,
+            resolution: 5
+
+        }).setOrigin(0).setAlpha(0);
 
 
     
@@ -91,11 +115,31 @@ export class Game extends Scene {
             this.player.setVelocityY(0);
             this.obstacles.clear(true, true);
             this.gameOverContainer.setAlpha(0);
+            this.congratsText.setAlpha(0);
+            this.score = 0;
+            this.frameCounter = 0;
+            const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
+            this.scoreText.setText(formattedScore);
             this.isGameRunning = true;
         })
-        this.scoreText
+        
+        this.frameCounter++;
+        if (this.frameCounter >100)
+        {
+            this.score += 100;
+            const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
+            this.scoreText.setText(formattedScore) 
+            this.frameCounter -= 100;
+        }
+
     }
     gameOver() {
+        if (this.score > this.highscore) {
+            this.highscore = this.score;
+            const formattedHighscore = String(Math.floor(this.highscore)).padStart(5, '0');
+            this.HighscoreText.setText(`High score: ${formattedHighscore}`);
+            this.congratsText.setAlpha(1);
+        }
         this.physics.pause();
         this.timer = 0;
         this.isGameRunning = false;
