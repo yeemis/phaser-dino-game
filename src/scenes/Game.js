@@ -27,8 +27,8 @@ export class Game extends Scene {
         this.load.image("game-over","assets/game-over.png");
         this.load.image("restart","assets/restart.png");
         this.load.image("dino-hurt","assets/dino-hurt.png");
-        this.load.audio("jump","assests/jump.m4a")
-        this.load.audio("hit","assests/hit.m4a");
+        this.load.audio("jump","assets/jump.m4a");
+        this.load.audio("hit","assets/hit.m4a");
     }
 
     create() {
@@ -36,7 +36,7 @@ export class Game extends Scene {
         this.highscore = 0;
         this.frameCounter = 0;
         this.isGameRunning = true;
-
+        this.time = 0
         this.gameSpeed = 5;
         this.timer = 0;
         this.player = this.physics.add.sprite(50 ,200,"dino")
@@ -93,6 +93,20 @@ export class Game extends Scene {
     }
 
     update(time, delta) {
+        this.time = time;
+        if (time < 10000) {
+            this.gameSpeed = 5;
+        } else if (time < 20000) {
+            this.gameSpeed = 6;
+        } else if (time < 30000) {
+            this.gameSpeed = 7;
+        } else if (time < 40000) {
+            this.gameSpeed = 8;
+        } else if (time < 50000) {
+            this.gameSpeed = 9;
+        } else {
+            this.gameSpeed = 10;
+        }
         if (!this.isGameRunning) {return;}
         this.ground.tilePositionX += this.gameSpeed;
         this.timer += delta;
@@ -111,7 +125,7 @@ export class Game extends Scene {
         })
         const {space, up} = this.cursors;
         if (Phaser.Input.Keyboard.JustDown(space) || Phaser.Input.Keyboard.JustDown(up)&& this.player.body.onFloor()) {
-            this.player.setVelocityY(-1600);
+            this.player.setVelocityY(-1700);
             this.sound.play("jump");
         }
         this.restartText.on('pointerdown', () => {
@@ -129,12 +143,12 @@ export class Game extends Scene {
         })
         
         this.frameCounter++;
-        if (this.frameCounter >100)
+        if (this.frameCounter >1)
         {
-            this.score += 100;
+            this.score += 1;
             const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
             this.scoreText.setText(formattedScore) 
-            this.frameCounter -= 100;
+            this.frameCounter -= 1;
         }
         this.anims.create({
             key: 'dino-run',
