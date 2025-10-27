@@ -83,7 +83,7 @@ export class Game extends Scene {
         this.congratsText = this.add.text(0,0, "Congratulations!, a new high score!!!", {
             fontSize: 30,
             fontFamily: "Arial",
-            color : "#ee25fcff" ,
+            color : "#006400" ,
             resolution: 5
 
         }).setOrigin(0).setAlpha(0);
