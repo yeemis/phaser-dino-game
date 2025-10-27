@@ -12,7 +12,7 @@ export class Game extends Scene {
         this.clouds = null;
         this.initialLives = 3;
         this.lives = this.initialLives;
-        this.isInvincible = false;
+    this.isInvincible = false;
         
     }
         
@@ -69,7 +69,7 @@ export class Game extends Scene {
         this.livesText = this.add.text(10,0,`Lives: ${this.lives}`,{
             fontSize: 30,
             fontFamily: "Arial",
-            color : "#535353",
+            color : "#ff0000ff",
             resolution: 5
         }).setOrigin(0,0);
         this.gameOverText = this.add.image(0,0,"game-over");
@@ -152,6 +152,7 @@ export class Game extends Scene {
             this.lives = this.initialLives;
             this.livesText.setText(`Lives: ${this.lives}`);
             this.isInvincible = false;
+            this.isFlying = false;
             // restore player texture/animation
             this.player.setTexture('dino', 0);
             const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
@@ -168,6 +169,7 @@ export class Game extends Scene {
             this.scoreText.setText(formattedScore) 
             this.frameCounter -= 1;
         }
+
         this.anims.create({
             key: 'dino-run',
             frames:this.anims.generateFrameNumbers('dino', {start:2, end:3}),
@@ -236,6 +238,66 @@ export class Game extends Scene {
                 callback: () => this.gameOver(),
             });
         }
+    }
+
+    collectPowerUp(player, powerup) {
+        // remove the powerup
+        powerup.destroy();
+        // start flying
+        this.startFlight();
+    }
+
+    startFlight() {
+        if (this.isFlying) return; // already flying
+        this.isFlying = true;
+        // make player invincible during flight
+        this.isInvincible = true;
+        // disable gravity and keep player at a fixed flight height
+        if (this.player.body) {
+            this.player.body.allowGravity = false;
+            this.player.setVelocityY(0);
+        }
+        // tween the player to a visible flying height and bob while flying
+        this.flightTween = this.tweens.add({
+            targets: this.player,
+            y: 140,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1,
+            duration: 800,
+        });
+
+        // after 5 seconds end flight and grant 1s of invincibility while coming down
+        this.sys.time.addEvent({
+            delay: 5000,
+            callback: () => {
+                this.endFlight();
+            }
+        });
+    }
+
+    endFlight() {
+        // stop flight tween
+        if (this.flightTween) {
+            this.flightTween.stop();
+            this.flightTween = null;
+        }
+        // re-enable gravity so player comes down
+        if (this.player.body) {
+            this.player.body.allowGravity = true;
+        }
+        // ensure player will fall naturally; give a small nudge downwards
+        this.player.setVelocityY(200);
+        // keep invincibility for 1 second after flight
+        this.isInvincible = true;
+        // after 1 second, remove invincibility
+        this.sys.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.isInvincible = false;
+            }
+        });
+        this.isFlying = false;
     }
     gameOver() {
         if (this.score > this.highscore) {
