@@ -10,7 +10,9 @@ export class Game extends Scene {
         this.player = null;
         this.ground = null;
         this.clouds = null;
-        
+        this.initialLives = 3;
+        this.lives = this.initialLives;
+        this.isInvincible = false;
         
     }
         
@@ -60,8 +62,16 @@ export class Game extends Scene {
         this.obstacles = this.physics.add.group({
             allowGravity: false,
         })
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.physics.add.collider(this.obstacles,this.player,this.gameOver,null,this);
+    this.cursors = this.input.keyboard.createCursorKeys();
+    // when obstacle collides with player, call handleHit (will decrement lives)
+    this.physics.add.collider(this.obstacles, this.player, this.handleHit, null, this);
+        // show lives in the top-left
+        this.livesText = this.add.text(10,0,`Lives: ${this.lives}`,{
+            fontSize: 30,
+            fontFamily: "Arial",
+            color : "#535353",
+            resolution: 5
+        }).setOrigin(0,0);
         this.gameOverText = this.add.image(0,0,"game-over");
         this.restartText = this.add.image(0,80,"restart").setInteractive();
             this.gameOverContainer = this.add
@@ -134,8 +144,16 @@ export class Game extends Scene {
             this.obstacles.clear(true, true);
             this.gameOverContainer.setAlpha(0);
             this.congratsText.setAlpha(0);
+            // ensure lives are visible again when restarting
+            if (this.livesText) this.livesText.setAlpha(1);
             this.score = 0;
             this.frameCounter = 0;
+            // reset lives and invincibility
+            this.lives = this.initialLives;
+            this.livesText.setText(`Lives: ${this.lives}`);
+            this.isInvincible = false;
+            // restore player texture/animation
+            this.player.setTexture('dino', 0);
             const formattedScore = String(Math.floor(this.score)).padStart(5, '0');
             this.scoreText.setText(formattedScore);
             this.isGameRunning = true;
@@ -171,12 +189,62 @@ export class Game extends Scene {
         
 
     }
+    
+    // called when player collides with an obstacle
+    handleHit(obj1, obj2) {
+        // ensure game is running and player exists
+        if (!this.isGameRunning) return;
+        if (this.isInvincible) return;
+
+        // decrement lives
+        this.lives -= 1;
+        this.livesText.setText(`Lives: ${this.lives}`);
+        this.sound.play('hit');
+
+        // show hurt texture briefly and make the player invincible for a short time
+        this.isInvincible = true;
+        this.player.setTexture('dino-hurt');
+
+        // flash the player to indicate invincibility
+        this.tweens.add({
+            targets: this.player,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: 5,
+            duration: 100
+        });
+
+        // after invincibility period, restore texture/animation and allow hits again
+        this.sys.time.addEvent({
+            delay: 800,
+            callback: () => {
+                this.isInvincible = false;
+                // restore animation if not jumping
+                if (this.player.body && this.player.body.deltaAbsY() <= 4) {
+                    this.player.setTexture('dino', 0);
+                    this.player.anims.play('dino-run', true);
+                } else {
+                    this.player.setTexture('dino', 0);
+                }
+            }
+        });
+
+        // if no lives left, end the game shortly after showing hit feedback
+        if (this.lives <= 0) {
+            this.sys.time.addEvent({
+                delay: 300,
+                callback: () => this.gameOver(),
+            });
+        }
+    }
     gameOver() {
         if (this.score > this.highscore) {
             this.highscore = this.score;
             const formattedHighscore = String(Math.floor(this.highscore)).padStart(5, '0');
             this.HighscoreText.setText(`High score: ${formattedHighscore}`);
             this.congratsText.setAlpha(1);
+            // hide lives when showing the congrats message
+            if (this.livesText) this.livesText.setAlpha(0);
         }
         this.physics.pause();
         this.timer = 0;
